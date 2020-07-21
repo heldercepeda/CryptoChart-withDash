@@ -1,10 +1,12 @@
 # local imports
-from assets.get_data import market_list
+from assets.get_data import market_list, ohlc
 
 # imports
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import pandas as pd
 
 values = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
 labels = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w"]
@@ -180,3 +182,101 @@ content = dcc.Loading(
                 ]
             )
         )
+
+
+# OHLC chart
+def ohlcGraph(market, pair, before=None, after=None, periods=None):
+    df = ohlc(market=market, pair=pair, before=before, after=after, periods=periods)
+    if df.shape[0] == 0:
+        return go.Figure(data=[]).update_layout(
+                            margin={'l': 20, 'b': 30, 't': 10, 'r': 20},
+                            template="plotly_dark",
+                            height=500,
+                            plot_bgcolor='black',
+                            paper_bgcolor='black',
+                            annotations=[
+                                {
+                                    "text": "No data to show!",
+                                    "xref": "paper",
+                                    "yref": "paper",
+                                    "showarrow": False,
+                                    "font": {
+                                        "size": 18,
+                                        "color": "gray"
+                                    }
+                                }
+                            ],
+                            xaxis={
+                                "visible": False
+                            },
+                            yaxis={
+                                "visible": False
+                            }
+                        )
+    else:
+        df.CloseTime = pd.to_datetime(df.CloseTime, unit="s")
+        df['CloseTime'] = df['CloseTime'].dt.tz_localize('utc').dt.tz_convert('Europe/London')
+        df['moving_avg'] = df['ClosePrice'].rolling(5, min_periods=1).mean()
+        df['moving_avg_2'] = df['ClosePrice'].ewm(com=0.9).mean()
+        df['diff'] = df['moving_avg_2'] - df['moving_avg']
+        df['color'] = df['diff'].apply(lambda x: "green" if x > 0 else "red")
+
+        fig = make_subplots(
+            rows=3, cols=1,
+            row_heights=[0.8, 0.10, 0.1],
+            shared_xaxes=True,
+            vertical_spacing=0.02)
+        fig.add_trace(
+            go.Candlestick(x=df.CloseTime,
+                           open=df.OpenPrice,
+                           high=df.HighPrice,
+                           low=df.LowPrice,
+                           close=df.ClosePrice,
+                           name="OHLC"),
+            row=1, col=1)
+        fig.add_trace(
+            go.Scatter(x=df.CloseTime,
+                       y=df.moving_avg,
+                       opacity=0.4,
+                       line=dict(color='royalblue', dash='dot'),
+                       name="MovAvg"),
+            row=1, col=1)
+        fig.add_trace(
+            go.Scatter(x=df.CloseTime,
+                       y=df.moving_avg_2,
+                       opacity=0.4,
+                       line=dict(color='salmon', dash='dot'),
+                       name="MovExp"),
+            row=1, col=1)
+        fig.add_trace(
+            go.Bar(x=df.CloseTime,
+                   y=df['diff'],
+                   opacity=0.5,
+                   marker_color=df['color'],
+                   name="Ind"),
+            row=2, col=1)
+        fig.add_trace(
+            go.Bar(x=df.CloseTime,
+                   y=df.Volume,
+                   opacity=0.5,
+                   marker_color='blue',
+                   name="Volume"),
+            row=3, col=1)
+        fig.update_layout(xaxis_rangeslider_visible=False,
+                          margin={'l': 0, 'b': 50, 't': 0, 'r': 0},
+                          showlegend=False,
+                          template="plotly_dark",
+                          height=700,
+                          hovermode='x unified',
+                          legend_orientation="h",
+                          plot_bgcolor='black',
+                          paper_bgcolor='black'
+                          )
+        fig['layout']['yaxis1']['showspikes'] = True
+        fig['layout']['yaxis2']['showgrid'] = False
+        fig['layout']['yaxis2']['showticklabels'] = False
+        fig['layout']['yaxis2']['showspikes'] = False
+        fig['layout']['yaxis3']['showgrid'] = False
+        fig['layout']['yaxis3']['showticklabels'] = False
+        fig['layout']['yaxis3']['showspikes'] = False
+        return fig
