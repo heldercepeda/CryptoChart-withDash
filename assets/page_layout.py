@@ -4,6 +4,7 @@ from assets.get_data import market_list
 # imports
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objects as go
 
 values = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
 labels = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w"]
@@ -102,6 +103,7 @@ dropdowns = html.Div(children=[
 ], className="container mt-1")
 
 
+# Main layout of the application
 def main_layout(controls, content, footer):
     layout_out = [
         html.Div(children=[
@@ -133,3 +135,48 @@ def main_layout(controls, content, footer):
         footer
     ]
     return layout_out
+
+
+# Content to be used inside the application
+content = dcc.Loading(
+            type="dot",
+            children=html.Div(
+                children=[
+                    dcc.Interval(
+                        id='interval',
+                        interval=60*1000,  # in milliseconds
+                        n_intervals=0
+                    ),
+                    dcc.Graph(
+                        id='example-graph',
+                        figure=go.Figure(data=[]).update_layout(
+                            margin={'l': 20, 'b': 30, 't': 10, 'r': 20},
+                            template="plotly_dark",
+                            height=500,
+                            plot_bgcolor='black',
+                            paper_bgcolor='black',
+                            annotations=[
+                                {
+                                    "text": "No data to show!<br>Please select a market",
+                                    "xref": "paper",
+                                    "yref": "paper",
+                                    "showarrow": False,
+                                    "font":
+                                        {
+                                            "size": 18,
+                                            "color": "gray"
+                                        }
+                                }
+                            ],
+                            xaxis={
+                                "visible": False
+                            },
+                            yaxis={
+                                "visible": False
+                            }
+                        ),
+                        className='mx-2 mt-4'
+                    )
+                ]
+            )
+        )
