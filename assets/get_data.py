@@ -1,6 +1,5 @@
 # local imports
 from assets.conf import api_key
-from assets.page_layout import values, labels
 
 # imports
 import requests
@@ -72,6 +71,8 @@ def ohlc(market, pair, before=None, after=None, periods=None):
             new_keys.append(int(key))
         except:
             pass
+    values = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
+    labels = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w"]
     for key in new_keys:
         df = pd.DataFrame(result["result"][str(key)],
                           columns=["CloseTime", "OpenPrice", "HighPrice", "LowPrice", "ClosePrice", "Volume",
