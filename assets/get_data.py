@@ -1,5 +1,5 @@
 # local imports
-from conf import api_key
+from assets.conf import api_key
 
 # imports
 import requests
