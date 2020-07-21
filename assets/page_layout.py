@@ -1,9 +1,13 @@
 # local imports
+from assets.get_data import market_list
 
 # imports
 import dash_core_components as dcc
 import dash_html_components as html
 
+
+values = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
+labels = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w"]
 
 # index_string has important html structure
 index_string = ''' <!DOCTYPE html>
@@ -28,3 +32,63 @@ index_string = ''' <!DOCTYPE html>
                                 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
                             </body>
                         </html>'''
+
+
+dropdowns = html.Div(children=[
+    html.Div(children=[
+        html.Div(children=[
+            html.Div(children=[
+                dcc.Dropdown(
+                    id='period',
+                    options=[
+                        {
+                            'label': label,
+                            'value': value
+                        }
+                        for label, value in zip(labels, values)
+                    ],
+                    value=300,
+                    style={"width": "70px", "background-color": "#000000"},
+                    searchable=False,
+                    placeholder="Period",
+                    clearable=False,
+                ),
+                dcc.Dropdown(
+                    id='datapoints',
+                    options=[
+                        {
+                            'label': i,
+                            'value': i
+                        }
+                        for i in [30, 60, 90, 120, 150, 240, 300, 420, 600, "max"]
+                    ],
+                    value=150,
+                    style={"width": "70px", "background-color": "#000000"},
+                    searchable=False,
+                    placeholder="Data points",
+                    disabled=False,
+                    clearable=False,
+                ),
+                dcc.Dropdown(
+                    id='markets',
+                    options=market_list,
+                    value='',
+                    style={"width": "250px", "background-color": "#000000"},
+                    clearable=False,
+                    searchable=True,
+                    placeholder="Select market"
+                ),
+                dcc.Dropdown(
+                    id='pairs',
+                    options=[],
+                    value='',
+                    style={"width": "150px", "background-color": "#000000"},
+                    searchable=True,
+                    placeholder="Select",
+                    disabled=True,
+                    clearable=False,
+                )
+            ], className="row justify-content-start")
+        ], className="col")
+    ], className="row")
+], className="container mt-1")
