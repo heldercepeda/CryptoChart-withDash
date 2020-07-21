@@ -1,5 +1,6 @@
 # local imports
 from assets.conf import api_key
+from assets.page_layout import values, labels
 
 # imports
 import requests
@@ -50,7 +51,9 @@ def pairs_list(market):
     return list_pairs
 
 
-# get data for OHLC chart
+# Get data to be used on OHLC chart
+# To be used on the OHLC chart
+# The function will return a pandas dataframe
 def ohlc(market, pair, before=None, after=None, periods=None):
     url = fr"https://api.cryptowat.ch/markets/{market}/{pair}/ohlc"
     params = {
@@ -63,8 +66,6 @@ def ohlc(market, pair, before=None, after=None, periods=None):
     if "result" not in result.keys():
         return pd.DataFrame()
     list_ = []
-    values = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
-    labels = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w"]
     new_keys = []
     for key in result["result"].keys():
         try:
