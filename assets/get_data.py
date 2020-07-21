@@ -18,14 +18,14 @@ def market_list():
     }
     result = requests.get(url, params=params).json()
     df = pd.DataFrame(result["result"]).sort_values("name")
-    final = [
+    list_markets = [
         {
             'label': df.name[i],
             'value': df.symbol[i]
         }
         for i in df.loc[df.active].index  # We just want to display the markets that are active
     ]
-    return final
+    return list_markets
 
 
 # get a list of pairs for the selected market
@@ -40,11 +40,11 @@ def pairs_list(market):
     }
     result = requests.get(url, params=params).json()
     df = pd.DataFrame(result["result"]).sort_values("pair")
-    final = [
+    list_pairs = [
         {
             'label': df.pair[i].upper(),
             'value': df.pair[i]
         }
         for i in df.loc[df.active].index  # We just want to display the pairs that are active on the given market
     ]
-    return final
+    return list_pairs
