@@ -5,7 +5,6 @@ from assets.get_data import market_list
 import dash_core_components as dcc
 import dash_html_components as html
 
-
 values = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
 labels = ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "12h", "1d", "3d", "1w"]
 
@@ -15,7 +14,7 @@ index_string = ''' <!DOCTYPE html>
                             <head>
                                 <meta charset="utf-8">
                                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                                <title>Home - heldercepeda.com</title>
+                                <title>OHLC Chart with Dash</title>
                                 <link rel="icon" href="/static/images/hc.png">
                                 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
                                 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -33,7 +32,7 @@ index_string = ''' <!DOCTYPE html>
                             </body>
                         </html>'''
 
-
+# dropdowns has all the dropdowns menus that will allow us to interact wit the OHLC chart
 dropdowns = html.Div(children=[
     html.Div(children=[
         html.Div(children=[
@@ -61,9 +60,12 @@ dropdowns = html.Div(children=[
                             'value': i
                         }
                         for i in [30, 60, 90, 120, 150, 240, 300, 420, 600, "max"]
-                    ],
+                    ],  # Number of datapoints to be shown in the chart
                     value=150,
-                    style={"width": "70px", "background-color": "#000000"},
+                    style={
+                        "width": "70px",
+                        "background-color": "#000000"
+                    },
                     searchable=False,
                     placeholder="Data points",
                     disabled=False,
@@ -71,18 +73,24 @@ dropdowns = html.Div(children=[
                 ),
                 dcc.Dropdown(
                     id='markets',
-                    options=market_list,
+                    options=market_list(),  # Market list from Cryptowat.ch
                     value='',
-                    style={"width": "250px", "background-color": "#000000"},
+                    style={
+                        "width": "250px",
+                        "background-color": "#000000"
+                    },
                     clearable=False,
                     searchable=True,
                     placeholder="Select market"
                 ),
                 dcc.Dropdown(
                     id='pairs',
-                    options=[],
+                    options=[],  # The dropdown will update after a market is chosen
                     value='',
-                    style={"width": "150px", "background-color": "#000000"},
+                    style={
+                        "width": "150px",
+                        "background-color": "#000000"
+                    },
                     searchable=True,
                     placeholder="Select",
                     disabled=True,
@@ -92,3 +100,36 @@ dropdowns = html.Div(children=[
         ], className="col")
     ], className="row")
 ], className="container mt-1")
+
+
+def main_layout(controls, content, footer):
+    layout_out = [
+        html.Div(children=[
+            html.Nav(children=[
+                html.Button([
+                    html.Span("apps", className="material-icons")
+                ],
+                    className="navbar-toggler",
+                    type="button",
+                    **{
+                        'aria-expanded': 'false',
+                        "aria-label": "Toggle navigation",
+                        'data-toggle': "collapse",
+                        "data-target": "#navbarSupportedContent",
+                        "aria-controls": "navbarSupportedContent"
+                    }
+                ),
+                html.Div(children=[
+                    html.Ul([
+                        html.Li(html.A("Chart OHLC", href="#", className="nav-link active"), className="nav-item"),
+                        html.Li(html.A("Link 1", href="#", className="nav-link"), className="nav-item"),
+                        html.Li(html.A("Link 2", href="#", className="nav-link"), className="nav-item")
+                    ], className="navbar-nav mr-auto")
+                ], className="collapse navbar-collapse", id="navbarSupportedContent")
+            ], className="navbar navbar-expand-sm navbar-dark", style={"background-color": "#000000"})
+        ], className="container border-light border-bottom"),
+        controls,
+        content,
+        footer
+    ]
+    return layout_out
